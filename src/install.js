@@ -1,4 +1,4 @@
-// cmake-npm - install.js
+// cmake-binaries - install.js
 // Copyright (c) 2020-2021 David Apollo (77db70f775fa0b590889c45371a70a1d23e99869d4565976a5207c11606fb6aa)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -82,13 +82,36 @@ function GetBaseDir() {
 
 ////////////////////////////////////////////////////////////////////////
 
-function CheckCMakeExists() {
-  if (commandExistsSync('cmake')) {
-    console.log('Command "cmake" already exists in PATH.');
+function ExistsInPath() {
+  return commandExistsSync('cmake');
+}
 
-    if (!process.argv.includes('--force')) {
-      console.log('To force-install via NPM, change to the "cmake-npm" module\'s directory'
-        + ' and enter "npm run install -- --force"');
+function ExistsInModule() {
+  const cmakeModuleBin = path.join(GetBaseDir(), 'bin', 'cmake',
+    (process.platform === 'win32' ? '.exe' : '')
+  );
+  return fs.existsSync(cmakeModuleBin);
+}
+
+function Exists() {
+  return (ExistsInPath() || ExistsInModule());
+}
+
+function CheckCMakeExists(forceInstall) {
+  let existsWhere = 'PATH';
+
+  if (ExistsInPath() ||
+    // Assign existsWhere on purpose.
+    (ExistsInModule() && (existsWhere = 'module'))
+  ) {
+    console.log('Command "cmake" already exists in ' + existsWhere);
+
+    if (!forceInstall) {
+      if (require.main === module)
+        console.log('To force-install via NPM, enter "npm run install -- --force"');
+      else
+        console.log('To force-install via NPM, enter ' +
+          '"npm explore cmake-binaries -- npm run install -- --force"');
       return true;
     } else
       console.log('Forcing install via NPM...');
@@ -192,24 +215,24 @@ function InstallCMake(rootPath) {
   let templatesDestPath = path.join(GetBaseDir(), 'share', 'cmake-' + MAJOR_VERSION, 'Templates');
 
   if (!fs.existsSync(modulesPath)) {
-    // This is a compile archive, named by VERSION instead.
-    // Still copy into a MAJOR_VERSION destination so we can overwrite on upgrade.
-    modulesPath = path.join(rootPath, 'share', 'cmake-' + VERSION, 'Modules');
-    templatesPath = path.join(rootPath, 'share', 'cmake-' + VERSION, 'Templates');
+    // Assume this is a source archive
+    modulesPath = path.join(rootPath, 'Modules');
+    templatesPath = path.join(rootPath, 'Templates');
   }
   
   fse.copySync(modulesPath, modulesDestPath);
   fse.copySync(templatesPath, templatesDestPath);
 }
 
-function main() {
-  // If cmake already exists, then decline to install (unless --force)
+function main(forceInstall, forceCompile) {
+  // If cmake already exists, then decline to install (unless --force).
   // Don't raise an error here.
-  if (CheckCMakeExists())
+  // Call CheckCMakeExists even when forceInstall so that the log messages
+  // will print.
+  if (CheckCMakeExists(forceInstall))
     return Promise.resolve(0);
 
   // Get download URL (determined from OS and arch)
-  const forceCompile = (process.argv.includes('--compile'));
   let cmakeUrl = false;
   let cmakeBuild = false;
 
@@ -252,12 +275,22 @@ function main() {
   });
 }
 
-// Run main and return its error code.
-main()
-.then(function(exitCode) {
-  process.exit(exitCode);
-})
-.catch(function(error) {
-  console.error(error);
-  process.exit(1);
-});
+// If running as a script, run main and return its error code.
+if (require.main === module) {
+  main(
+    process.argv.includes('--force'),
+    process.argv.includes('--compile')
+  )
+  .then(function(exitCode) {
+    process.exit(exitCode);
+  })
+  .catch(function(error) {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  install: main,
+  exists: Exists
+};

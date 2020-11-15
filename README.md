@@ -1,16 +1,54 @@
-# cmake-npm
+# cmake-binaries
 
-Download [CMake](https://cmake.org/) for subsequent use by `npm --global install`.
+Install and run [CMake](https://cmake.org/) v3.18.4 as an NPM module.
 
-If you already have CMake installed and it is in your PATH, you may force installation
-as an NPM module by passing `npm run install -- --force`.
+## Installation
 
-If CMake distributes binaries for your platform (Linux/macOS x86_64; Windows x64 and x86),
-this will download those binaries unless you pass `npm run install -- --compile`.
+```sh
+npm install git+https://github.com/devappd/cmake-binaries.git
+```
 
-This package installs CMake 3.18.4.
+If you already have CMake installed and it is in your PATH, this package will use
+your pre-existing installation. You may force-install as an NPM module by passing
+`npm run install -- --force`.
 
-Note that because `cmake` takes such a long time to download and compile,
-it is recommended that you install this package in global mode.
+If you are running on Windows x86 or x64, or Linux/macOS x86_64, this package will
+download those binary releases unless you pass `npm run install -- --compile`
+to build from source. **Note that compiling is disabled on Windows!**
 
-Based on [install-cmake](https://github.com/brave/install-cmake) for npm.
+Note that because `cmake` takes such a long time to download and compile, you
+should install this package in global mode.
+
+## Usage
+
+```js
+const cmake = require('cmake-binaries');
+
+// Check if CMake is installed.
+const exists = cmake.exists();
+
+// Run cmake.install if you want to ensure that it is installed at every
+// run. To skip this step, you can just run cmake.run directly.
+//
+// forceInstall (bool) -- Install even if you already have CMake.
+// forceCompile (bool) -- Compile even when a binary distribution exists.
+cmake.install(forceInstall, forceCompile)
+.then(function() {
+  return cmake.run([
+    // arguments
+    'path/to/src',
+    '-G', '"MSYS Makefiles"',
+    '-DCMAKE_BUILD_TYPE=Release',
+    '-DCMAKE_INSTALL_PREFIX=./install',
+    // etc...
+  ]);
+})
+.except(function (err) {
+  // Handle err...
+});
+```
+
+## Acknowledgements
+
+Based on [install-cmake](https://github.com/brave/install-cmake) for npm
+and [emsdk-npm](https://github.com/brion/emsdk-npm).

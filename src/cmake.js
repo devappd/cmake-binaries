@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// cmake-npm - cmake.js
+// cmake-binaries - cmake.js
 // Copyright (c) 2020-2021 David Apollo (77db70f775fa0b590889c45371a70a1d23e99869d4565976a5207c11606fb6aa)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,5 +29,25 @@
 
 const common = require('./common.js');
 
-const args = process.argv.slice(2);
-common.run_executable('cmake', args);
+function run(args) {
+  return common.run_executable('cmake', args);
+}
+
+if(require.main === module)
+  run(process.argv.slice(2))
+  .then(function (result) {
+    process.exit(result.code);
+  })
+  .catch(function (err) {
+    if (typeof err === 'ChildProcessError'
+      && err.code != 0)
+      process.exit(err.code);
+    else {
+      console.error(err.message);
+      process.exit(1);
+    }
+  });
+
+module.exports = {
+  run: run
+};

@@ -22,7 +22,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const child_process = require('child_process');
+const spawn = require('child-process-promise').spawn;
 
 function base() {
     const srcdir = path.dirname(module.filename);
@@ -31,23 +31,17 @@ function base() {
 }
 
 function run(command, args) {
-    const child = child_process.spawn(
-        command,
-        args,
-        {
-            stdio: [
-                'inherit',
-                'inherit',
-                'inherit'
-            ]
-        }
-    );
-    child.on('exit', (e) => {
-        process.exit(e.code);
-    });
-    child.on('error', (err) => {
-        throw err;
-    });
+  return spawn(
+    command,
+    args,
+    {
+      stdio: [
+        'inherit',
+        'inherit',
+        'inherit'
+      ]
+    }
+  );
 }
 
 function run_executable(executable_name, args) {
@@ -59,9 +53,9 @@ function run_executable(executable_name, args) {
   // If our local EXE does not exist, try running it anyway
   // in case it is in PATH.
   if (fs.existsSync(executable_run))
-    run(executable_run, args);
+    return run(executable_run, args);
   else
-    run(executable_name + suffix, args);
+    return run(executable_name + suffix, args);
 }
 
 module.exports = {
