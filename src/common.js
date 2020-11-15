@@ -20,6 +20,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 const path = require('path');
+const fs = require('fs');
 
 const child_process = require('child_process');
 
@@ -57,8 +58,10 @@ function run_executable(executable_name, args) {
 
   // If our local EXE does not exist, try running it anyway
   // in case it is in PATH.
-
-  run(executable_run, args);
+  if (fs.existsSync(executable_run))
+    run(executable_run, args);
+  else
+    run(executable_name + suffix, args);
 }
 
 module.exports = {
