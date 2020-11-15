@@ -20,7 +20,7 @@
   "dependencies": {
     "command-exists": "^1.2.9",
     "decompress": "^4.2.1",
-    "download-file-sync": "^1.0.4",
+    "fs-extra": "^9.0.1",
     "tmp": "^0.2.1"
   }
 }

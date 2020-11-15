@@ -1,4 +1,6 @@
 bin
+share
+tmp*
 
 # and so on...
 npm-debug.log

@@ -33,6 +33,7 @@ const path = require('path');
 const commandExistsSync = require('command-exists').sync;
 const tmp = require('tmp');
 const decompress = require('decompress');
+const fse = require('fs-extra');
 
 const MAJOR_VERSION = '3.18'
 const VERSION = '3.18.4';
@@ -86,7 +87,8 @@ function CheckCMakeExists() {
     console.log('Command "cmake" already exists in PATH.');
 
     if (!process.argv.includes('--force')) {
-      console.log('To force-install via NPM, pass --force');
+      console.log('To force-install via NPM, change to the "cmake-npm" module\'s directory'
+        + ' and enter "npm run install -- --force"');
       return true;
     } else
       console.log('Forcing install via NPM...');
@@ -112,28 +114,24 @@ function GetCMakeBinaryUrl() {
   return false;
 }
 
-function DownloadArchive(url) {
+function DownloadArchive(url, destPath) {
   console.log('Downloading CMake archive...');
 
-  var destFile = GetFilenameFromUrl(url);
-  var folderName = GetFilenameWithoutExt(destFile);
+  const destFile = GetFilenameFromUrl(url);
+  const folderName = GetFilenameWithoutExt(destFile);
 
-  var tmpObj = tmp.dirSync({
-    'unsafeCleanup': true
-  });
-
-  var tmpArchiveDest = path.join(tmpObj.name, destFile);
+  const tmpArchiveDest = path.join(destPath, destFile);
 
   return Download(url, tmpArchiveDest)
   .then(function() {
     console.log('Extracting CMake archive. This may take a while...');
     // Extract the archive. CMake archives have a folder in root,
     // so just extract to tmp folder.
-    return decompress(tmpArchiveDest, tmpObj.name);
+    return decompress(tmpArchiveDest, destPath);
   })
   .then(function() {
     // Check if the expected archive root exists: ${tmp}/${filename_without_ext}
-    var tmpExtractRoot = path.join(tmpObj.name, folderName);
+    const tmpExtractRoot = path.join(destPath, folderName);
 
     if (fs.existsSync(tmpExtractRoot)) {
       return tmpExtractRoot;
@@ -161,23 +159,39 @@ function BuildCMake(srcPath) {
 function InstallCMake(rootPath) {
   console.log('Installing CMake to NPM module...');
 
-  var binPath = path.join(rootPath, 'bin');
-  var destPath = path.join(GetBaseDir(), 'bin');
+  const binPath = path.join(rootPath, 'bin');
+  const destPath = path.join(GetBaseDir(), 'bin');
 
   if (!fs.existsSync(destPath))
     fs.mkdirSync(destPath);
 
-  var ext = (process.platform === 'win32' ? '.exe' : '');
-  var cmakePath = path.join(binPath, 'cmake' + ext);
-  var cpackPath = path.join(binPath, 'cpack' + ext);
+  const ext = (process.platform === 'win32' ? '.exe' : '');
+  const cmakePath = path.join(binPath, 'cmake' + ext);
+  const cpackPath = path.join(binPath, 'cpack' + ext);
 
-  var cmakeDestPath = path.join(destPath, 'cmake' + ext);
+  const cmakeDestPath = path.join(destPath, 'cmake' + ext);
   fs.copyFileSync(cmakePath, cmakeDestPath);
   fs.chmodSync(cmakeDestPath, 0o775);
 
-  var cpackDestPath = path.join(destPath, 'cpack' + ext);
+  const cpackDestPath = path.join(destPath, 'cpack' + ext);
   fs.copyFileSync(cpackPath, cpackDestPath);
   fs.chmodSync(cpackDestPath, 0o775);
+
+  // Also copy the "Modules" and "Templates" folders in "share"
+  let modulesPath = path.join(rootPath, 'share', 'cmake-' + MAJOR_VERSION, 'Modules');
+  let modulesDestPath = path.join(GetBaseDir(), 'share', 'cmake-' + MAJOR_VERSION, 'Modules');
+  let templatesPath = path.join(rootPath, 'share', 'cmake-' + MAJOR_VERSION, 'Templates');
+  let templatesDestPath = path.join(GetBaseDir(), 'share', 'cmake-' + MAJOR_VERSION, 'Templates');
+
+  if (!fs.existsSync(modulesPath)) {
+    // This is a compile archive, named by VERSION instead.
+    // Still copy into a MAJOR_VERSION destination so we can overwrite on upgrade.
+    modulesPath = path.join(rootPath, 'share', 'cmake-' + VERSION, 'Modules');
+    templatesPath = path.join(rootPath, 'share', 'cmake-' + VERSION, 'Templates');
+  }
+  
+  fse.copySync(modulesPath, modulesDestPath);
+  fse.copySync(templatesPath, templatesDestPath);
 }
 
 function main() {
@@ -187,8 +201,9 @@ function main() {
     return Promise.resolve(0);
 
   // Get download URL (determined from OS and arch)
-  var forceCompile = (process.argv.includes('--compile'));
-  var cmakeUrl = false;
+  const forceCompile = (process.argv.includes('--compile'));
+  let cmakeUrl = false;
+  let cmakeBuild = false;
 
   if (!forceCompile)
     cmakeUrl = GetCMakeBinaryUrl();
@@ -200,14 +215,19 @@ function main() {
         + ' is not supported for compiling on Windows!');
     }
 
-    var cmakeBuild = true;
+    cmakeBuild = true;
     cmakeUrl = URL_ROOT + '.tar.gz';
   }
+
+  // Set up temporary staging folder
+  const tmpObj = tmp.dirSync({
+    'unsafeCleanup': true
+  });
 
   // Download archive and extract.
   // Binary downloads are located in ${zip_root}/${filename_without_ext}/bin
   // Source download, after building, will also build to ${zip_root}/${filename_without_ext}/bin
-  return DownloadArchive(cmakeUrl)
+  return DownloadArchive(cmakeUrl, tmpObj.name)
   .then(function(cmakeTempPath) {
     // If we need to build, do so now.
     if (cmakeBuild)
@@ -218,6 +238,9 @@ function main() {
 
     console.log('Success!');
     return 0;
+  })
+  .finally(function() {
+    tmpObj.removeCallback();
   });
 }
 
