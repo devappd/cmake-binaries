@@ -158,7 +158,7 @@ function BuildCMake(srcPath) {
     'stdio': 'inherit'
   });
 
-  execSync('./make', {
+  execSync('make', {
     'cwd': srcPath,
     'stdio': 'inherit'
   });
