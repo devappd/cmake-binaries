@@ -1,0 +1,26 @@
+{
+  "name": "cmake-npm",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devappd/cmake-npm"
+  },
+  "author": "devappd <devappd@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devappd/cmake-npm/issues"
+  },
+  "bin": {
+    "cmake": "./src/cmake.js",
+    "cpack": "./src/cpack.js"
+  },
+  "scripts": {
+    "install": "node ./src/install.js"
+  },
+  "dependencies": {
+    "command-exists": "^1.2.9",
+    "decompress": "^4.2.1",
+    "download-file-sync": "^1.0.4",
+    "tmp": "^0.2.1"
+  }
+}
