@@ -131,7 +131,15 @@ function DownloadArchive(url, destPath) {
   })
   .then(function() {
     // Check if the expected archive root exists: ${tmp}/${filename_without_ext}
-    const tmpExtractRoot = path.join(destPath, folderName);
+    let tmpExtractRoot = path.join(destPath, folderName);
+
+    // If macOS, this will be in ${tmp}/${filename_without_ext}/CMake.app/Contents
+    //
+    // \todo Does this actually work to extract bin/ and share/ from
+    // a .app folder? If not, then just copy the entire .app folder
+    // and figure out how to execute it from NPX.
+    if (folderName.includes('Darwin'))
+      tmpExtractRoot = path.join(tmpExtractRoot, 'CMake.app/Contents');
 
     if (fs.existsSync(tmpExtractRoot)) {
       return tmpExtractRoot;
