@@ -105,7 +105,7 @@ function GetCMakeBinaryUrl() {
   } else if (process.platform === 'darwin') {
     if (process.arch === 'x64')
       return URL_ROOT + '-Darwin-x86_64.tar.gz';
-  } else {
+  } else if (process.platform === 'linux') {
     if (process.arch === 'x64')
       return URL_ROOT + '-Linux-x86_64.tar.gz';
   }
