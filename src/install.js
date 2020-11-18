@@ -35,10 +35,14 @@ const tmp = require('tmp');
 const decompress = require('decompress');
 const fse = require('fs-extra');
 
-const MAJOR_VERSION = '3.18'
+const MAJOR_VERSION = '3.18';
 const VERSION = '3.18.4';
 
 const URL_ROOT = 'https://cmake.org/files/v' + MAJOR_VERSION + '/cmake-' + VERSION;
+
+////////////////////////////////////////////////////////////////////////
+// Utilities
+////////////////////////////////////////////////////////////////////////
 
 // courtesy of https://stackoverflow.com/questions/11944932/how-to-download-a-file-with-node-js-without-using-third-party-libraries
 function Download(url, dest) {
@@ -81,6 +85,8 @@ function GetBaseDir() {
 }
 
 ////////////////////////////////////////////////////////////////////////
+// Check if CMake is already in node_modules or in PATH.
+////////////////////////////////////////////////////////////////////////
 
 function ExistsInPath() {
   return commandExistsSync('cmake');
@@ -97,6 +103,7 @@ function Exists() {
   return (ExistsInPath() || ExistsInModule());
 }
 
+// main() subroutine to check CMake existence and print status messages.
 function CheckCMakeExists(forceInstall) {
   let existsWhere = 'PATH';
 
@@ -118,6 +125,10 @@ function CheckCMakeExists(forceInstall) {
   }
   return false;
 }
+
+////////////////////////////////////////////////////////////////////////
+// Download CMake distribution from cmake.org
+////////////////////////////////////////////////////////////////////////
 
 function GetCMakeBinaryUrl() {
   if (process.platform === 'win32') {
@@ -148,6 +159,7 @@ function DownloadArchive(url, destPath) {
   return Download(url, tmpArchiveDest)
   .then(function() {
     console.log('Extracting CMake archive. This may take a while...');
+
     // Extract the archive. CMake archives have a folder in root,
     // so just extract to tmp folder.
     return decompress(tmpArchiveDest, destPath);
@@ -172,6 +184,10 @@ function DownloadArchive(url, destPath) {
     }
   });
 }
+
+////////////////////////////////////////////////////////////////////////
+// Build and install CMake
+////////////////////////////////////////////////////////////////////////
 
 function BuildCMake(srcPath) {
   console.log('Now building CMake...');
@@ -224,17 +240,19 @@ function InstallCMake(rootPath) {
   fse.copySync(templatesPath, templatesDestPath);
 }
 
+////////////////////////////////////////////////////////////////////////
+// Main routine and exports
+////////////////////////////////////////////////////////////////////////
+
 function main(forceInstall, forceCompile) {
   // If cmake already exists, then decline to install (unless --force).
-  // Don't raise an error here.
-  // Call CheckCMakeExists even when forceInstall so that the log messages
-  // will print.
+  // Don't raise an error here. CheckCMakeExists() also prints status msgs.
   if (CheckCMakeExists(forceInstall))
     return Promise.resolve(0);
 
   // Get download URL (determined from OS and arch)
-  let cmakeUrl = false;
-  let cmakeBuild = false;
+  let cmakeUrl = null;
+  let cmakeBuild = null;
 
   if (!forceCompile)
     cmakeUrl = GetCMakeBinaryUrl();
