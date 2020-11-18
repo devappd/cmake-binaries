@@ -29,8 +29,8 @@
 
 const common = require('./common.js');
 
-function run(args) {
-  return common.run_executable('cmake', args);
+function run(args, opts = {}) {
+  return common.run_executable('cmake', args, opts);
 }
 
 if(require.main === module)

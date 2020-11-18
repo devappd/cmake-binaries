@@ -35,13 +35,15 @@ const exists = cmake.exists();
 cmake.install(forceInstall, forceCompile)
 .then(function() {
   return cmake.run([
-    // arguments
-    'path/to/src',
-    '-G', '"MSYS Makefiles"',
-    '-DCMAKE_BUILD_TYPE=Release',
-    '-DCMAKE_INSTALL_PREFIX=./install',
-    // etc...
-  ]);
+      // arguments
+      'path/to/src',
+      '-G', '"MSYS Makefiles"',
+      '-DCMAKE_BUILD_TYPE=Release',
+      '-DCMAKE_INSTALL_PREFIX=./install',
+      // etc...
+    ],
+    { /* child_process.spawn options, e.g., cwd */ }
+  );
 })
 .except(function (err) {
   // Handle err...

@@ -30,7 +30,7 @@ function base() {
     return basedir;
 }
 
-function run(command, args) {
+function run(command, args, opts = {}) {
   return spawn(
     command,
     args,
@@ -39,12 +39,13 @@ function run(command, args) {
         'inherit',
         'inherit',
         'inherit'
-      ]
+      ],
+      ...opts
     }
   );
 }
 
-function run_executable(executable_name, args) {
+function run_executable(executable_name, args, opts = {}) {
   const basedir = base();
   const bindir = path.join(basedir, 'bin');
   const suffix = (process.platform === 'win32') ? '.exe' : '';
@@ -53,9 +54,9 @@ function run_executable(executable_name, args) {
   // If our local EXE does not exist, try running it anyway
   // in case it is in PATH.
   if (fs.existsSync(executable_run))
-    return run(executable_run, args);
+    return run(executable_run, args, opts);
   else
-    return run(executable_name + suffix, args);
+    return run(executable_name + suffix, args, opts);
 }
 
 module.exports = {
