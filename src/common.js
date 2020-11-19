@@ -22,7 +22,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const spawn = require('child-process-promise').spawn;
+const spawn = require('cross-spawn-promise');
 
 function base() {
     const srcdir = path.dirname(module.filename);

@@ -45,7 +45,7 @@ cmake.install(forceInstall, forceCompile)
     { /* child_process.spawn options, e.g., cwd */ }
   );
 })
-.except(function (err) {
+.catch(function (err) {
   // Handle err...
 });
 ```

@@ -34,6 +34,7 @@ const commandExistsSync = require('command-exists').sync;
 const tmp = require('tmp');
 const decompress = require('decompress');
 const fse = require('fs-extra');
+const which = require('which');
 
 const MAJOR_VERSION = '3.18';
 const VERSION = '3.18.4';
@@ -92,6 +93,11 @@ function ExistsInPath() {
   return commandExistsSync('cmake');
 }
 
+function GetCMakePathInPath() {
+  // throws if not found
+  return which.sync('cmake');
+}
+
 function GetCMakePathInModule() {
   const cmakeModuleBin = path.join(GetBaseDir(), 'bin', 'cmake',
     (process.platform === 'win32' ? '.exe' : '')
@@ -110,11 +116,16 @@ function Exists() {
 }
 
 function GetCommand() {
-  if (ExistsInPath())
-    return 'cmake';
-  else
-    // returns null if this doesn't exist
-    return GetCMakePathInModule();
+  let testPath = GetCMakePathInModule();
+  if (!testPath) {
+    try {
+      testPath = GetCMakePathInPath();
+    } catch(e) {
+      // not found
+      testPath = 'cmake';
+    }
+  }
+  return testPath;
 }
 
 // main() subroutine to check CMake existence and print status messages.
