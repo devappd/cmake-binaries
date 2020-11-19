@@ -4,6 +4,8 @@ const cpack = require('./cpack.js');
 
 module.exports = {
   install: install.install,
-  run_cmake: cmake.run,
+  exists: install.exists,
+  getCommand: install.getCommand,
+  run: cmake.run,
   run_cpack: cpack.run
 };

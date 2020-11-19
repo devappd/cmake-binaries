@@ -92,15 +92,29 @@ function ExistsInPath() {
   return commandExistsSync('cmake');
 }
 
-function ExistsInModule() {
+function GetCMakePathInModule() {
   const cmakeModuleBin = path.join(GetBaseDir(), 'bin', 'cmake',
     (process.platform === 'win32' ? '.exe' : '')
   );
-  return fs.existsSync(cmakeModuleBin);
+  if (fs.existsSync(cmakeModuleBin))
+    return cmakeModuleBin;
+}
+
+function ExistsInModule() {
+  if (GetCMakePathInModule())
+    return true;
 }
 
 function Exists() {
   return (ExistsInPath() || ExistsInModule());
+}
+
+function GetCommand() {
+  if (ExistsInPath())
+    return 'cmake';
+  else
+    // returns null if this doesn't exist
+    return GetCMakePathInModule();
 }
 
 // main() subroutine to check CMake existence and print status messages.
@@ -310,5 +324,6 @@ if (require.main === module) {
 
 module.exports = {
   install: main,
-  exists: Exists
+  exists: Exists,
+  getCommand: GetCommand
 };
