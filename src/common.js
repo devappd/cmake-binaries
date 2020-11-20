@@ -21,10 +21,12 @@
 
 const path = require('path');
 const fs = require('fs');
-
 const spawn = require('cross-spawn-promise');
 
-function base() {
+const MAJOR_VERSION = '3.18';
+const VERSION = '3.18.4';
+
+function moduleBase() {
     const srcdir = path.dirname(module.filename);
     const basedir = path.dirname(srcdir);
     return basedir;
@@ -45,22 +47,24 @@ function run(command, args, opts = {}) {
   );
 }
 
-function run_executable(executable_name, args, opts = {}) {
-  const basedir = base();
-  const bindir = path.join(basedir, 'bin');
+function runExecutable(command, args, opts = {}) {
+  const moduleDir = moduleBase();
+  const binDir = path.join(moduleDir, 'bin');
   const suffix = (process.platform === 'win32') ? '.exe' : '';
-  const executable_run = path.join(bindir, executable_name + suffix);
+  const executablePath = path.join(binDir, command + suffix);
 
   // If our local EXE does not exist, try running it anyway
   // in case it is in PATH.
-  if (fs.existsSync(executable_run))
-    return run(executable_run, args, opts);
+  if (fs.existsSync(executablePath))
+    return run(executablePath, args, opts);
   else
-    return run(executable_name + suffix, args, opts);
+    return run(command + suffix, args, opts);
 }
 
 module.exports = {
-    base: base,
+    moduleBase: moduleBase,
     run: run,
-    run_executable: run_executable
+    runExecutable: runExecutable,
+    MAJOR_VERSION: MAJOR_VERSION,
+    VERSION: VERSION
 };

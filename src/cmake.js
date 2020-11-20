@@ -30,22 +30,19 @@
 const common = require('./common.js');
 
 function run(args, opts = {}) {
-  return common.run_executable('cmake', args, opts);
+  return common.runExecutable('cmake', args, opts);
 }
 
 if(require.main === module)
-  run(process.argv.slice(2))
-  .then(function (result) {
-    process.exit(result.code);
+  run(process.argv.slice(2)).then(_ => {
+    process.exit(0);
   })
-  .catch(function (err) {
-    if (err instanceof ChildProcessError
-      && err.code != 0)
-      process.exit(err.code);
-    else {
-      console.error(err.message);
+  .catch(err => {
+    if ('exitStatus' in err
+      && err.exitStatus != 0)
+      process.exit(err.exitStatus);
+    else
       process.exit(1);
-    }
   });
 
 module.exports = {
