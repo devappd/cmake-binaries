@@ -62,7 +62,10 @@ function SaveEntry(entry, destPath, options) {
 }
 
 async function ExtractArchive(archive, destPath) {
-  const entries = await archive.getFilesArray();
+  let entries = await archive.extractFiles();
+  // Accessing a private member is cheating, but we need
+  // a flat array of entries.
+  entries = archive._objectToArray(entries);
 
   for (const entry of entries) {
     SaveEntry(entry, destPath);
