@@ -70,8 +70,8 @@ function GetCMakePathInPath() {
 }
 
 function GetCMakePathInModule() {
-  const cmakeModuleBin = path.join(moduleBase(), 'bin', 'cmake',
-    (process.platform === 'win32' ? '.exe' : '')
+  const cmakeModuleBin = path.join(moduleBase(), 'bin',
+    'cmake' + (process.platform === 'win32' ? '.exe' : '')
   );
   if (fs.existsSync(cmakeModuleBin))
     return cmakeModuleBin;

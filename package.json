@@ -20,9 +20,9 @@
   "dependencies": {
     "command-exists": "^1.2.9",
     "cross-spawn-promise": "^0.10.2",
-    "file-api": "git+https://github.com/devappd/file-api.git",
+    "file-api": "https://github.com/devappd/file-api/archive/master.tar.gz",
     "fs-extra": "^9.0.1",
-    "libarchivejs": "git+https://github.com/devappd/libarchivejs.git#node",
+    "libarchivejs": "https://github.com/devappd/libarchivejs/archive/node.tar.gz",
     "node-fetch": "^2.6.1",
     "tmp": "^0.2.1",
     "which": "^2.0.2"
