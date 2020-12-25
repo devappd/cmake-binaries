@@ -11,8 +11,8 @@
     "url": "https://github.com/devappd/cmake-binaries/issues"
   },
   "bin": {
-    "cmake": "./src/cmake.js",
-    "cpack": "./src/cpack.js"
+    "cmake-run": "./src/cmake-run.js",
+    "cpack-run": "./src/cpack-run.js"
   },
   "scripts": {
     "postinstall": "node ./src/install.js"

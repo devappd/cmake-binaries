@@ -1,6 +1,6 @@
 const install = require('./install.js');
-const cmake = require('./cmake.js');
-const cpack = require('./cpack.js');
+const cmake = require('./cmake-run.js');
+const cpack = require('./cpack-run.js');
 
 module.exports = {
   install: install.install,
