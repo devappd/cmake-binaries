@@ -23,8 +23,8 @@ const path = require('path');
 const fs = require('fs');
 const spawn = require('cross-spawn-promise');
 
-const MAJOR_VERSION = '3.18';
-const VERSION = '3.18.4';
+const MAJOR_VERSION = '3.19';
+const VERSION = '3.19.2';
 
 function moduleBase() {
     const srcdir = path.dirname(module.filename);
