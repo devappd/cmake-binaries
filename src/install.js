@@ -118,10 +118,10 @@ function CheckCMakeExists(forceInstall) {
 
     if (!forceInstall) {
       if (require.main === module)
-        console.log('To force-install via NPM, enter "npm run install -- --force"');
+        console.log('To force-install via NPM, enter "npm run postinstall -- --force"');
       else
         console.log('To force-install via NPM, enter ' +
-          '"npm explore cmake-binaries -- npm run install -- --force"');
+          '"npm explore cmake-binaries -- npm run postinstall -- --force"');
       return true;
     } else
       console.log('Forcing install via NPM...');

@@ -1,6 +1,9 @@
 // emsdk-npm - common.js 
 // Copyright 2019 Brion Vibber
 //
+// cmake-binaries - common.js 
+// Copyright (c) 2020-2021 David Apollo (77db70f775fa0b590889c45371a70a1d23e99869d4565976a5207c11606fb6aa)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
