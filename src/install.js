@@ -32,7 +32,6 @@ const tmp = require('tmp');
 
 const fse = require('fs-extra');
 const which = require('which');
-const { commandExistsSync } = require('command-exists');
 const { moduleBase, MAJOR_VERSION, VERSION } = require('./common.js');
 const DownloadCMakeArchive = require('./download.js');
 
@@ -92,7 +91,7 @@ function GetCommand() {
 
 function ExistsInPath() {
   try {
-    return commandExistsSync('cmake');
+    return GetCMakePathInPath();
   } catch(e) {
     return false;
   }

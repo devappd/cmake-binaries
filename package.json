@@ -15,10 +15,9 @@
     "cpack": "./src/cpack.js"
   },
   "scripts": {
-    "install": "node ./src/install.js"
+    "postinstall": "node ./src/install.js"
   },
   "dependencies": {
-    "command-exists": "^1.2.9",
     "cross-spawn-promise": "^0.10.2",
     "file-api": "https://github.com/devappd/file-api/archive/master.tar.gz",
     "fs-extra": "^9.0.1",
