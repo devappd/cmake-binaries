@@ -7,8 +7,8 @@ const url = require('url');
 const path = require('path');
 const fse = require('fs-extra');
 const fetch = require('node-fetch');
-const { File } = require('file-api');
-const { Archive } = require('libarchivejs');
+const { File } = require('@devappd/nodejs-html5-file-api');
+const { Archive } = require('@devappd/libarchive.js');
 const { MAJOR_VERSION } = require('./common.js');
 
 // Initialize Archive class properties
