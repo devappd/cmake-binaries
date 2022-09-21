@@ -1,6 +1,6 @@
 # cmake-binaries
 
-Install and run [CMake](https://cmake.org/) v3.18.4 as an NPM module.
+Install and run [CMake](https://cmake.org/) v3.24.2 as an NPM module.
 
 ## Installation
 
